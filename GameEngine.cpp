@@ -41,21 +41,18 @@ void GameEngine::newPlayers() {
 
     std::cout << "Starting a New Game" << std::endl;
     std::cout << "Enter name for player 1:" << std::endl;
+    std::cout << "> ";
     std::cin >> name1;
     player1 = new Player(name1);
 
     std::cout << "Enter name for player 2:" << std::endl;
+    std::cout << "> ";
     std::cin >> name2;
     player2 = new Player(name2);
     std::cout << "Let's Play!" << std::endl;
 }
 
 void GameEngine::playGame() {
-    std::string choice = "";
-    int factory = std::numeric_limits<int>::min();
-    std::string colour = "";
-    char colourToChar;
-    int row = std::numeric_limits<int>::min();
     Player* current = player1;
     Player* other = player2;
 
@@ -71,26 +68,28 @@ void GameEngine::playGame() {
     
         std::cout << "> ";
 
-        std::cin >> choice;
 
-        std::for_each(choice.begin(), choice.end(), [](char & c){
-            c = ::toupper(c);
-        });
-        
-        if(choice.find("TURN ") != std::string::npos) {
-            int numTiles = 0;;
-            std::stringstream choice1(choice.at(7));
-            choice1 >> factory;
-            colour = choice.at(7);  
-            std::stringstream choice2(choice.at(9));
-            choice2 >> row;
-            colourToChar = getColourFromInput(colour);
+        std::string choice;
+        std::getline(std::cin, choice);
+        std::stringstream playerTurn(choice);
+
+        std::string command;
+        int factory;
+        std::string colour;
+        int row;
+
+        playerTurn >> command >> factory >> colour >> row;
+
+//check save
+        if(command == "turn") {
+            int numTiles = 0;
+            char colourToChar = getColourFromInput(colour);
 
             if (colourToChar != NO_TILE) {
-                numTiles = centreBoard->getNumTilesInFactory(colourToChar, row);
+                numTiles = centreBoard->getNumTilesInFactory(colourToChar, factory);
 
                 if(numTiles != 0) {
-                    centreBoard->moveTilesToBoxLid(colourToChar, row);
+                    centreBoard->moveTilesToCentralFactory(colourToChar, factory);
                     current->getMosaic()->placeTiles(row, colourToChar, numTiles);
                 }
             }

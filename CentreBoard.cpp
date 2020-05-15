@@ -56,10 +56,10 @@ int CentreBoard::getNumTilesInFactory(char colour, int row) {
     return counter;
 }
 
-void CentreBoard::moveTilesToBoxLid(char colour, int row) {
+void CentreBoard::moveTilesToCentralFactory(char colour, int row) {
     for(int j=0; j != MAX_TILES_PER_FACTORY; ++j) {
         if(factories[row-1][j]->getColour() != colour) {
-            boxLid.push_back(factories[row-1][j]);
+            centralFactory.push_back(factories[row-1][j]);
         }
         factories[row-1][j] = nullptr;
     }          

@@ -27,7 +27,7 @@ public:
     void shuffleTileBag(int seed);
     bool fillTileBag(int value);
     void populateFactories();
-    void moveTilesToBoxLid(char colour, int row);
+    void moveTilesToCentralFactory(char colour, int row);
 private:
     TilePtr** factories;
     std::vector<TilePtr> centralFactory;

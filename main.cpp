@@ -14,7 +14,7 @@ using std::endl;
 class Args {
 public:
 
-   std::string deckFile;
+   std::string gameFile;
 
    bool haveSeed;
    int seed;
