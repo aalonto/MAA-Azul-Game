@@ -124,40 +124,78 @@ TilePtr** Mosaic::getBoard() {
     return board;
 }
     
-void Mosaic::placeTiles(int storageRow, char colour, int numTiles) {
-    int counter = numTiles;
+int Mosaic::placeTiles(int storageRow, char colour, int numTiles) {
+    int remaining = numTiles;
     TilePtr* line = getLine(storageRow);
+    
 
-    while (counter != 0) {
-        for(int i = 0; i < storageRow; ++i) {
-            if (line[i]->getColour() == NO_TILE) {
-                line[i] = new Tile(colour);
-                --counter;
-            }
+    for(int i = 0; i < storageRow; ++i) {
+        if (line[i]->getColour() == NO_TILE && remaining != 0) {
+            line[i]->setColour(colour);
+            --remaining;
         }
+    }    
 
-        for(int i=0; i < 7; ++i) {
-            if(broken[i]->getColour() == NO_TILE) {
-                broken[i] = new Tile(colour);
-            }
-            --counter;
+    for(int i=0; i != 7; ++i) {
+        if(broken[i] == nullptr && remaining != 0) {
+            broken[i] = new Tile(colour);
+            --remaining;
         }
     }
+
+    return remaining;
 }
 
-void Mosaic::moveTile() {
-    //TODO  moves tiles from storage row to completed tiles
-
-    for(int i=0; i != MAX_MOSAIC_ROWS; ++i) {
-            if(isStorageComplete(i+1)) {
-                char colour = getTileToMove(i+1);
-                int index = indexToMove(colour, i+1);
-                board[i][index]->setColour(colour);
-                clearStorageRow(i+1);
-                //check for adjacent tiles     
-            }
-
+int Mosaic::moveTile(int row) {
+    int index = -1;
+    if(isStorageComplete(row+1)) {
+        char colour = getTileToMove(row+1);
+        index = indexToMove(colour, row+1);
+        board[row][index]->setColour(colour);
+        clearStorageRow(row+1);   
     }
+    return index;
+}
+
+int Mosaic::countHorizontal(int row, int col) {
+    int counter = 0;
+
+    int i=col;
+    while (i < MAX_MOSAIC_COLS && board[row][i]->getColour() != NO_TILE) {
+        counter++;
+        i++;
+    } 
+
+    if(col != 0) {
+        int j = col - 1;
+        while(j >= 0 && board[row][j]->getColour() != NO_TILE) {
+            counter++;
+            j--;
+        } 
+    }
+
+    return counter;
+
+}
+
+int Mosaic::countVertical(int row, int col) {
+    int counter = 0;
+
+    int i=row;
+    while (i < MAX_MOSAIC_ROWS && board[i][col]->getColour() != NO_TILE) {
+        counter++;
+        i++;
+    } 
+
+    if(row != 0) {
+        int j = row - 1;
+        while(j >= 0 && board[j][col]->getColour() != NO_TILE) {
+            counter++;
+            j--;
+        } 
+    }
+
+    return counter;
 }
 
 void Mosaic::clearStorageRow(int row) {
@@ -168,7 +206,6 @@ void Mosaic::clearStorageRow(int row) {
             storageLine[i]->setColour(NO_TILE);
         }
     }
-    delete storageLine;
 }
 
 bool Mosaic::isStorageComplete(int line) {
@@ -181,7 +218,6 @@ bool Mosaic::isStorageComplete(int line) {
             }
         }
     }
-    delete storageLine;
 
     return complete;
 }
@@ -214,16 +250,93 @@ char Mosaic::getTileToMove(int line) {
     return getLine(line)[0]->getColour();
 }
 
-bool Mosaic::checkForCompleteLine() {
+bool Mosaic::checkForCompleteLine(int row) {
     bool complete = false;
-    for(int i= 0; i != MAX_MOSAIC_ROWS; ++i) {
-        for(int j = 0; j != MAX_MOSAIC_COLS; ++j) {
-            if((j == MAX_MOSAIC_COLS - 1) && (board[i][j]->getColour() != NO_TILE)) {
-                complete = true;
-            }
+    int count = 0;
+    for(int j = 0; j != MAX_MOSAIC_COLS; ++j) {
+        if(board[row][j]->getColour() != NO_TILE) {
+            count++;
         }
+    }
+    if(count == 5) {
+        complete = true;
     }
 
     return complete;
 }
-//TODO print mosaic
+
+void Mosaic::placeFirstPlayerTile() {
+    for(int i=0; i != 7; ++i) {
+        if(broken[0] == nullptr) {
+            broken[0] = new Tile(FIRST_PLAYER);
+        }
+    }
+}
+
+int Mosaic::getBrokenPoints(){
+    int count = 0;
+    int points = 0;
+    for(int i=0; i != 7; ++i) {
+        if(broken[i] != nullptr) {
+            count++;
+        }
+    }
+
+    if(count == 1 || count == 2) {
+        points = count;
+    } else if(count == 3 || count == 4 || count == 5) {
+        points =  2 * (count-1);
+    } else if( count == 6) {
+        points = 11;
+    } else if(count == 7) {
+        points = 14;
+    }
+
+    return points;
+
+}
+
+void Mosaic::clearBrokenTiles() {
+    for(int i=0; i != 7; ++i) {
+        if(broken[i] != nullptr) {
+            delete broken[i];
+            broken[i] = nullptr;
+        }
+    }
+}
+
+bool Mosaic::checkForCompleteColumn(int col) {
+    bool complete = false;
+    int count = 0;
+    for(int i = 0; i != MAX_MOSAIC_ROWS; ++i) {
+        if(board[i][col]->getColour() != NO_TILE) {
+            count++;
+        }
+    }
+    if(count == 5) {
+        complete = true;
+    }
+
+    return complete;    
+}
+
+int Mosaic::countCompleteColours() {
+    int complete = 0;
+    char colours[] = {RED, YELLOW, DARK_BLUE, LIGHT_BLUE, BLACK};
+    
+    for(int i=0; i != NUMBER_OF_COLOURS; ++i) {
+        int count = 0;
+        for(int j = 0; j != MAX_MOSAIC_ROWS; ++j) {
+            for(int k = 0; k != MAX_MOSAIC_COLS; ++k) {
+                if(board[j][k]->getColour() == colours[i]) {
+                    count++;
+                }
+            }
+
+            if(count == 5) {
+                complete++;
+            }
+        }
+    }
+    return complete;
+}

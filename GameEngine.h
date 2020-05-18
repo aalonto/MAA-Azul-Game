@@ -22,12 +22,15 @@ public:
     void checkEndRound();
     void checkFinished();
     void calculateRound();
-
+    void printRoundResults();
+    void setEndRoundToFalse();
     Player* getPlayer(int i);
     CentreBoard* getCentreBoard();
     bool isFinished();
     TileBag getTileBag();
-    std::vector<Tile> getBoxLid();
+    void endOfGameScoring();
+    void displayWinner();
+
 
 private:
     Player* player1;

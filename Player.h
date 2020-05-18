@@ -14,11 +14,14 @@ public:
     Mosaic* getMosaic();
     int getPoints();
     void setPoints(int points);
-
+    void updatePoints(int points);
+    void setPointsforRound(int points);
+    int getPointsForRound();
 private:
     std::string playerName;
     Mosaic* mosaic;
     int points;
+    int pointsForRound;
 };
 
 #endif //PLAYER_H

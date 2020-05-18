@@ -8,6 +8,7 @@
 #define BLACK        'U'
 #define FIRST_PLAYER 'F'
 #define NO_TILE      '.'
+#define NUMBER_OF_COLOURS 5
 
 
 class Tile {
@@ -17,6 +18,8 @@ public:
     char getColour();
     void setColour(char colour);
     
+
+
 
 private:
     char colour;

@@ -1,4 +1,4 @@
-#ifndef MOSAIC_H 
+#ifndef MOSAIC_H
 #define MOSAIC_H
 
 #include <vector>
@@ -11,22 +11,26 @@
 
 
 class Mosaic{
-    public:
+public:
     Mosaic();
     ~Mosaic();
     TilePtr* getLine(int pos);
     TilePtr* getBroken();
     TilePtr** getBoard();
-    void placeTiles(int storageRow, char colour, int numTiles);
-    void placeBroken(Tile tile, int numTiles);
-    void moveTile();
+    int placeTiles(int storageRow, char colour, int numTiles);
+    void placeFirstPlayerTile();
+    int moveTile(int row);
     void clearStorageRow(int row);
     bool isStorageComplete(int line);
     int indexToMove(char colour, int row);
     char getTileToMove(int line);
-    bool checkForCompleteLine();
-
-    //char getLine(int i, line1 Line1, line2 Line2, line3 Line3, line4 Line4, line5 Line5);
+    bool checkForCompleteLine(int row);
+    int countHorizontal(int row, int col);
+    int countVertical(int row, int col);
+    int getBrokenPoints();
+    void clearBrokenTiles();
+    bool checkForCompleteColumn(int col);
+    int countCompleteColours();
 
 private:
     TilePtr** board;

@@ -20,6 +20,7 @@ public:
     void newRound(GameEngine ge);
     TilePtr** getFactories();
     std::vector<TilePtr> getCentralFactory();
+    std::vector<TilePtr> getBoxLid();
     void printCentralFactory();
     void printFactories();
     void emptyFactories();
@@ -28,6 +29,8 @@ public:
     bool fillTileBag(int value);
     void populateFactories();
     void moveTilesToCentralFactory(char colour, int row);
+    void removeTilesFromCentralFactory(char colour);
+
 private:
     TilePtr** factories;
     std::vector<TilePtr> centralFactory;

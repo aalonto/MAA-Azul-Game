@@ -25,22 +25,6 @@ unsigned int TileBag::size() {
     return length;   
 }
 
-// TilePtr TileBag::get(unsigned int index) {
-//     Node* current = head;
-//     int counter = 0;
-//     TilePtr toreturn = nullptr;
-//     if(index < length){
-//         while(counter < index){
-//             ++counter;
-//             current = current->next;
-//         }
-//         toreturn = current->tile;
-//     } else {
-//         throw std::out_of_range("Index is out of range");
-//     }
-//     return toreturn;
-// }
-
 void TileBag::addTile(TilePtr tile) {
     Node* toAdd = new Node(tile, nullptr);
 
@@ -80,27 +64,6 @@ TilePtr TileBag::getHead() {
 
 }
 
-// void TileBag::removeTileBack() {
-//     if (head != nullptr) {
-//         if(head->next == nullptr){
-//             removeTileFront();
-//         } else {
-//             Node* prev = nullptr;
-//             Node* current = head;
-
-//             while(current->next != nullptr){
-//                 prev = current;
-//                 current = current->next;
-//             }
-//             prev->next = current->next;
-//             delete current;
-//             length--;
-//         }
-//     } else {
-//         throw std::logic_error("Deleting on empty tilebag");
-//     }
-// }
-
 
 
 void TileBag::clear(){
@@ -135,8 +98,6 @@ void TileBag::loadTileBag(std::istream& inputStream) {
       addTile(tile);
    }    
 }
-
-
 
 
 

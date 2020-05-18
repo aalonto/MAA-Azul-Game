@@ -29,5 +29,16 @@ int Player::getPoints() {
 
 void Player::setPoints(int points) {
     this->points = points;
+}
 
+void Player::updatePoints(int points) {
+    this->points += points;
+}
+
+void Player::setPointsforRound(int points) {
+    this->pointsForRound = points;
+}
+
+int Player:: getPointsForRound() {
+    return this->pointsForRound;
 }

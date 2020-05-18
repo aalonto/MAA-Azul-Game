@@ -1,4 +1,5 @@
 #include "GameEngine.h"
+#include <iomanip>
 #include <string>
 #include <limits>
 #include <sstream> 
@@ -8,8 +9,9 @@ GameEngine::GameEngine(){
     this->player1 = nullptr;
     this->player2 = nullptr;
     this->players= new Player*[MAX_PLAYER];
-    players[0] = player1;
-    players[1] = player2;  
+    for(int i=0; i != MAX_PLAYER; ++i) {
+        players[i] = nullptr;
+    }
     this->finished = false;
     this->endRound = false;
 }
@@ -39,17 +41,19 @@ void GameEngine::newPlayers() {
     std::string name1 = "";
     std::string name2 = "";
 
-    std::cout << "Starting a New Game" << std::endl;
-    std::cout << "Enter name for player 1:" << std::endl;
+    std::cout << "\n Starting a New Game..." << std::endl;
+    std::cout << "\n Enter name for player 1:" << std::endl;
     std::cout << "> ";
     std::cin >> name1;
     player1 = new Player(name1);
+    players[0] = player1;
 
-    std::cout << "Enter name for player 2:" << std::endl;
+    std::cout << "\n Enter name for player 2:" << std::endl;
     std::cout << "> ";
     std::cin >> name2;
     player2 = new Player(name2);
-    std::cout << "Let's Play!" << std::endl;
+    players[1] = player2;
+    std::cout << "\n Let's Play! \n" << std::endl;
 }
 
 void GameEngine::playGame() {
@@ -58,16 +62,16 @@ void GameEngine::playGame() {
 
 
     do {
-        std::cout << "TURN FOR PLAYER: " << current->getPlayerName() << std::endl;
+        std::cout << "\n TURN FOR PLAYER: " << current->getPlayerName() << std::endl;
         std::cout << "Factories:" << std::endl;
         centreBoard->printCentralFactory();
         centreBoard->printFactories();
+        std::cout << std::endl;
 
         displayPlayerMosaic(current);
 
     
         std::cout << "> ";
-
 
         std::string choice;
         std::getline(std::cin, choice);
@@ -86,18 +90,33 @@ void GameEngine::playGame() {
             char colourToChar = getColourFromInput(colour);
 
             if (colourToChar != NO_TILE) {
-                numTiles = centreBoard->getNumTilesInFactory(colourToChar, factory);
 
+                numTiles = centreBoard->getNumTilesInFactory(colourToChar, factory);
                 if(numTiles != 0) {
-                    centreBoard->moveTilesToCentralFactory(colourToChar, factory);
-                    current->getMosaic()->placeTiles(row, colourToChar, numTiles);
+                    int remaining = current->getMosaic()->placeTiles(row, colourToChar, numTiles);
+                    if(remaining != 0) {
+                        for(int i=1; i <= remaining; ++i){
+                            centreBoard->getBoxLid().push_back(new Tile(colourToChar));
+                        }
+                    }
+                    
+                    if(factory !=0){
+                        centreBoard->moveTilesToCentralFactory(colourToChar, factory);
+                    } else {
+                        if(centreBoard->getCentralFactory().front()->getColour() == FIRST_PLAYER) {
+                            centreBoard->removeTilesFromCentralFactory(FIRST_PLAYER);
+                            current->getMosaic()->placeFirstPlayerTile();
+                        }
+
+                        centreBoard->removeTilesFromCentralFactory(colourToChar);
+                    }                    
                 }
             }
 
             Player* tmp = current;
             current = other;
-            other = tmp;  
-
+            other = tmp;
+            
             checkEndRound();
 
         } 
@@ -127,16 +146,22 @@ void GameEngine::displayPlayerMosaic(Player* current) {
     TilePtr* storageLine = nullptr;
     TilePtr* broken = current->getMosaic()->getBroken();
     TilePtr** board = current->getMosaic()->getBoard();
-    std::cout << "Mosaic for " << current->getPlayerName() << ":" << std::endl;
+    std::cout << current->getPlayerName() << "'s Mosaic:" << std::endl;
+    int space = 8;
+
     for(int i=0; i != MAX_MOSAIC_ROWS; ++i) {
+        
         std::cout << i+1 << ":";
         storageLine = current->getMosaic()->getLine(i+1);
-    //format mosaic display for spaces
-        for(int j = 0; j != i+1; ++j) {
-
-            std::cout << " " << storageLine[j]->getColour();
+        for (int j = 0; j != space; ++j){ 
+                std::cout << " "; 
+            }
+        space = space - 2; 
+  
+        for(int j = i; j >= 0; --j) {
+            std::cout << storageLine[j]->getColour() << " ";
         }
-        std::cout << " ||";
+        std::cout << "||";
 
         for(int k = 0; k != MAX_MOSAIC_COLS; ++k) {
             std::cout << " " << board[i][k]->getColour();
@@ -162,16 +187,36 @@ void GameEngine::checkEndRound() {
 
 void GameEngine::calculateRound() {
     for(int i=0; i != MAX_PLAYER; ++i) {
+        int pointsEarned = 0;
         Mosaic* playerMosaic = players[i]->getMosaic();
-        playerMosaic->moveTile();
-        //check for adjacent tiles
-        //update player points
+        for(int j = 0; j != MAX_MOSAIC_ROWS; ++j) {
+            int index = playerMosaic->moveTile(j);
+            if(index != -1) {
+                int horizontal = playerMosaic->countHorizontal(j, index);
+                int vertical = playerMosaic->countVertical(j, index);
+                pointsEarned = pointsEarned + horizontal + vertical;
+                if (horizontal == 1 || vertical == 1) {
+                    pointsEarned = pointsEarned - 1;
+                }
+
+            }
+        }
+        int pointstoSubtract = playerMosaic->getBrokenPoints();
+        if(pointstoSubtract != 0) {
+            playerMosaic->clearBrokenTiles();
+        }
+        int pointsForRound = pointsEarned - pointstoSubtract;
+        players[i]->setPointsforRound(pointsForRound);
+        players[i]->updatePoints(pointsForRound);
     }
 }
+
 void GameEngine::checkFinished() {
     for(int i=0; i != MAX_PLAYER; ++i) {
-        if(players[i]->getMosaic()->checkForCompleteLine()) {
-            finished = true;
+        for (int j = 0; j != MAX_MOSAIC_ROWS; ++j) {
+            if(players[i]->getMosaic()->checkForCompleteLine(j)) {
+                finished = true;
+            }
         }
     }
 }
@@ -179,12 +224,62 @@ void GameEngine::checkFinished() {
 bool GameEngine::isFinished() {
     return finished;
 }
-    // void finalResults();
-    // void calculateRound(Player p);
-
-    // Player* getPlayer(int i);
 
 CentreBoard* GameEngine::getCentreBoard() {
     return centreBoard;
+}
+
+void GameEngine::printRoundResults() {
+    std::cout << "=== ROUND RESULT ===" << std::endl;
+    std::cout << std::endl;
+
+    for(int i=0; i != MAX_PLAYER; ++i) {
+        std::cout << players[i]->getPlayerName() << " earned " << players[i]->getPointsForRound() << 
+        " points for this round." << std::endl;
+        std::cout << players[i]->getPlayerName() << "'s total points so far: " 
+        << players[i]->getPoints() << "points" << std::endl;
+        displayPlayerMosaic(players[i]);
+        std::cout << std::endl;
+
+    }
+}
+
+void GameEngine::setEndRoundToFalse() {
+    endRound = false;
+}
+
+void GameEngine::endOfGameScoring() {
+    for(int i=0; i != MAX_PLAYER; ++i) {
+        Mosaic* playerMosaic = players[i]->getMosaic();
+        int pointsEarned = 0;
+
+            for (int j = 0; j != MAX_MOSAIC_ROWS; ++j) {
+                if(playerMosaic->checkForCompleteLine(j)) {
+                    pointsEarned += 2;
+                }
+            }
+
+            for (int j = 0; j != MAX_MOSAIC_COLS; ++j) {
+                if(playerMosaic->checkForCompleteColumn(j)) {
+                    pointsEarned += 7;
+                }
+            }
+
+            int completeColours = playerMosaic->countCompleteColours();
+            pointsEarned += completeColours * 10;
+            players[i]->updatePoints(pointsEarned);
+    }
+}
+
+void GameEngine::displayWinner() {
+    Player* winner = players[0];
+    for(int i = 1; i != MAX_PLAYER; ++i) {
+        if(players[i]->getPoints() >= winner->getPoints()) {
+            winner = players[i];
+        }
+
+    } 
+
+    std::cout << "Player " << winner->getPlayerName() << " wins!" << std::endl;
 }
 

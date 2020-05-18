@@ -1,6 +1,7 @@
 #include "CentreBoard.h"
 
 #include <random>
+#include <algorithm>
 
 
 CentreBoard::CentreBoard() {  
@@ -48,11 +49,19 @@ CentreBoard::~CentreBoard() {
 
 int CentreBoard::getNumTilesInFactory(char colour, int row) {
     int counter = 0;
-    for(int j=0; j != MAX_TILES_PER_FACTORY; ++j) {
-        if(factories[row-1][j]->getColour() == colour) {
-            counter++;
+    if(row !=0) {
+        for(int j=0; j != MAX_TILES_PER_FACTORY; ++j) {
+            if(factories[row-1][j]->getColour() == colour) {
+                counter++;
+            }
+        }  
+    } else {
+        for(int i=0; i != centralFactory.size(); ++i) {
+            if (centralFactory[i]->getColour() == colour) {
+                counter++;
+            }
         }
-    }    
+    } 
     return counter;
 }
 
@@ -71,6 +80,10 @@ TilePtr** CentreBoard::getFactories() {
 
 std::vector<TilePtr> CentreBoard::getCentralFactory() {
     return centralFactory;
+}
+
+std::vector<TilePtr> CentreBoard::getBoxLid(){
+    return boxLid;
 }
 
 void CentreBoard::printCentralFactory() {
@@ -97,14 +110,16 @@ bool CentreBoard::checkEmpty() {
     bool empty = false;
 
     if(centralFactory.empty()) {
-        for(int i = 0; i != MAX_FACTORY; i++) {
-            for(int j=0; j != MAX_TILES_PER_FACTORY; ++j) {
-                if (factories[i][j]->getColour() == NO_TILE) {
-                    empty = true; 
+        for(int i = 0; i != MAX_FACTORY; ++i) {
+            for(int j = 0; j != MAX_TILES_PER_FACTORY; ++j) {
+                if (factories[i][j] == nullptr) {
+                    empty = true;
+                } else {
+                    empty = false;
+                    break;
                 }
-            } 
+            }
         }
-
     }
 
     return empty;
@@ -167,16 +182,31 @@ void CentreBoard::populateFactories() {
     for(int i=0; i != MAX_FACTORY; ++i) {
         for(int j=0; j != MAX_TILES_PER_FACTORY; ++j) {
             if(factories[i][j] == nullptr) {
-                if(tileBag->size() != 0){
-                    factories[i][j] = tileBag->getHead();
-                } else{
-                    if(!boxLid.empty()) {
-                        factories[i][j] = boxLid.back();
+                if( tileBag->size() == 0) {
+                    while(!boxLid.empty()) {
+                        tileBag->addTile(boxLid.back());
                         boxLid.pop_back();
                     }
-                    
-                }
+                }   
+                factories[i][j] = tileBag->getHead();          
             }
         }
+    }
+
+    if(centralFactory.empty()) {
+        centralFactory.push_back(new Tile(FIRST_PLAYER));
     }    
+}
+
+void CentreBoard::removeTilesFromCentralFactory(char colour) {
+
+    for(auto& tilePtr : centralFactory)
+    {
+        if (tilePtr->getColour() == colour)
+        {
+            delete tilePtr;
+            tilePtr = nullptr;
+        }
+    }
+    centralFactory.erase(std::remove(centralFactory.begin(), centralFactory.end(), nullptr), centralFactory.end());
 }

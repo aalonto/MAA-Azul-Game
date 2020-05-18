@@ -15,3 +15,4 @@ char Tile::getColour() {
 void Tile::setColour(char colour){
     this->colour = colour;
 }
+
