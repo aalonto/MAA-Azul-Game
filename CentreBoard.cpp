@@ -183,12 +183,12 @@ void CentreBoard::populateFactories() {
         for(int j=0; j != MAX_TILES_PER_FACTORY; ++j) {
             if(factories[i][j] == nullptr) {
                 if( tileBag->size() == 0) {
-                    while(!boxLid.empty()) {
-                        tileBag->addTile(boxLid.back());
-                        boxLid.pop_back();
-                    }
-                }   
-                factories[i][j] = tileBag->getHead();          
+                    factories[i][j] = boxLid.back();
+                    boxLid.pop_back();
+                } else {
+                    factories[i][j] = tileBag->getHead();
+                }  
+                          
             }
         }
     }

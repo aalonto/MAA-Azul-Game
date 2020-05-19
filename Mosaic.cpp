@@ -303,7 +303,6 @@ void Mosaic::clearLines() {
     for(int i = 0; i != MAX_MOSAIC_ROWS; ++i) {
         for(int j = 0; j != MAX_MOSAIC_COLS; ++j) {
             delete board[i][j];
-            board[i][j] = nullptr;
         }
     }
     

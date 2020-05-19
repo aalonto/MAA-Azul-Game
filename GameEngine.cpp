@@ -41,19 +41,19 @@ void GameEngine::newPlayers() {
     std::string name1 = "";
     std::string name2 = "";
 
-    std::cout << "\n Starting a New Game..." << std::endl;
-    std::cout << "\n Enter name for player 1:" << std::endl;
+    std::cout << "\nStarting a New Game..." << std::endl;
+    std::cout << "\nEnter name for player 1:" << std::endl;
     std::cout << "> ";
     std::cin >> name1;
     player1 = new Player(name1);
     players[0] = player1;
 
-    std::cout << "\n Enter name for player 2:" << std::endl;
+    std::cout << "\nEnter name for player 2:" << std::endl;
     std::cout << "> ";
     std::cin >> name2;
     player2 = new Player(name2);
     players[1] = player2;
-    std::cout << "\n Let's Play! \n" << std::endl;
+    std::cout << "\nLet's Play! \n" << std::endl;
 }
 
 void GameEngine::playGame() {
@@ -62,7 +62,7 @@ void GameEngine::playGame() {
 
 
     do {
-        std::cout << "\n TURN FOR PLAYER: " << current->getPlayerName() << std::endl;
+        std::cout << "\nTURN FOR PLAYER: " << current->getPlayerName() << std::endl;
         std::cout << "Factories:" << std::endl;
         centreBoard->printCentralFactory();
         centreBoard->printFactories();
@@ -159,9 +159,9 @@ void GameEngine::displayPlayerMosaic(Player* current) {
         space = space - 2; 
   
         for(int j = i; j >= 0; --j) {
-            std::cout << storageLine[j]->getColour() << " ";
+            std::cout << " " << storageLine[j]->getColour();
         }
-        std::cout << "||";
+        std::cout << " ||";
 
         for(int k = 0; k != MAX_MOSAIC_COLS; ++k) {
             std::cout << " " << board[i][k]->getColour();

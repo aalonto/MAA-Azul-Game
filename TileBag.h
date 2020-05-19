@@ -24,9 +24,6 @@ public:
     TilePtr getHead();
     void clear();
     void loadTileBag(std::istream& inputStream);
-    /* int calculateRandom();
-    int getCurrent(); 
-    void shuffle(int seed);*/
 private:
     Node* head;
     int length;

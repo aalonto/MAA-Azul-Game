@@ -42,7 +42,7 @@ void TileBag::addTile(TilePtr tile) {
     length++;
 }
 
-void  TileBag::removeTileFront() {
+void TileBag::removeTileFront() {
     if (head != nullptr){
         Node* todelete = head;
         head = head->next;
