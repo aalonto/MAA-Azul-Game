@@ -116,6 +116,7 @@ void newGame(Args* args){
         if(!ge->isFinished()) {
             cout << "Preparing for next round... \n" << endl;
             ge->setEndRoundToFalse();
+            ge->moveDiscardedTilesToBoxLid();
         }
     } while(!ge->isFinished());
     

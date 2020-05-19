@@ -30,6 +30,7 @@ public:
     TileBag getTileBag();
     void endOfGameScoring();
     void displayWinner();
+    void moveDiscardedTilesToBoxLid();
 
 
 private:

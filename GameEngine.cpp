@@ -283,3 +283,16 @@ void GameEngine::displayWinner() {
     std::cout << "Player " << winner->getPlayerName() << " wins!" << std::endl;
 }
 
+void GameEngine::moveDiscardedTilesToBoxLid() {
+
+    for(int i=0; i != MAX_PLAYER; ++i) {
+        std::vector<char> discarded = players[i]->getMosaic()->getDiscardedTiles();
+        std::vector<TilePtr> boxLid = centreBoard->getBoxLid();
+        
+        while(!discarded.empty()) {
+            boxLid.push_back(new Tile(discarded.back()));
+            discarded.pop_back();
+        }
+    }
+}
+

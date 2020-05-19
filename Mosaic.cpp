@@ -11,9 +11,7 @@ Mosaic::Mosaic() {
     }
 
     line1 = new TilePtr[1];
-    for(int i=0; i != 1; ++i) {
-        line1[i] = new Tile(NO_TILE);
-    }    
+    line1[0] = new Tile(NO_TILE);   
 
     line2 = new TilePtr[2];
     for(int i=0; i != 2; ++i) {
@@ -39,6 +37,7 @@ Mosaic::Mosaic() {
     for(int i=0; i < 7; ++i) {
         broken[i] = nullptr;
     } 
+    discardedTiles.clear();
 }
 
 Mosaic::~Mosaic() {
@@ -50,6 +49,7 @@ Mosaic::~Mosaic() {
     delete line4;
     delete line5;
     delete broken;  
+    discardedTiles.clear();
 }
 
 TilePtr* Mosaic::getLine(int pos) {
@@ -81,7 +81,7 @@ int Mosaic::placeTiles(int storageRow, char colour, int numTiles) {
     TilePtr* line = getLine(storageRow);
     
 
-    for(int i = 0; i < storageRow; ++i) {
+    for(int i = 0; i != storageRow; ++i) {
         if (line[i]->getColour() == NO_TILE && remaining != 0) {
             line[i]->setColour(colour);
             --remaining;
@@ -155,9 +155,11 @@ void Mosaic::clearStorageRow(int row) {
 
     for(int i = 0; i != row; ++i) {
         if(storageLine[i]->getColour() != NO_TILE) {
+            discardedTiles.push_back(storageLine[i]->getColour());
             storageLine[i]->setColour(NO_TILE);
         }
     }
+    discardedTiles.pop_back();
 }
 
 bool Mosaic::isStorageComplete(int line) {
@@ -252,9 +254,9 @@ int Mosaic::getBrokenPoints(){
 void Mosaic::clearBrokenTiles() {
     for(int i=0; i != 7; ++i) {
         if(broken[i] != nullptr) {
-            // if(broken[i]->getColour() != FIRST_PLAYER) {
-            //     discardedTiles.push_back(new Tile(broken[i]->getColour()));
-            // }
+            if(broken[i]->getColour() != FIRST_PLAYER) {
+                discardedTiles.push_back(broken[i]->getColour());
+            } 
             delete broken[i];
             broken[i] = nullptr;
         }
@@ -329,6 +331,6 @@ void Mosaic::clearLines() {
     }
 }
 
-std::vector<TilePtr> Mosaic::getDiscardedTiles() {
+std::vector<char> Mosaic::getDiscardedTiles() {
     return discardedTiles;
 }
