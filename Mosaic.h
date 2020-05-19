@@ -31,6 +31,8 @@ public:
     void clearBrokenTiles();
     bool checkForCompleteColumn(int col);
     int countCompleteColours();
+    void clearLines();
+    std::vector<TilePtr> getDiscardedTiles();
 
 private:
     TilePtr** board;
@@ -40,6 +42,7 @@ private:
     TilePtr* line4;
     TilePtr* line5;
     TilePtr* broken;
+    std::vector<TilePtr> discardedTiles;
 };
 
 #endif //MOSAIC_H

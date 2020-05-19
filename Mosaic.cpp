@@ -42,55 +42,7 @@ Mosaic::Mosaic() {
 }
 
 Mosaic::~Mosaic() {
-    for(int i = 0; i != MAX_MOSAIC_ROWS; ++i) {
-        for(int j = 0; j != MAX_MOSAIC_COLS; ++j) {
-            if(board != nullptr) {
-                delete board[i][j];
-                board[i][j] = nullptr;
-            }
-        }
-    }
-
-    if(line1[0] != nullptr) {
-        delete line1[0];
-        line1[0] = nullptr;
-    }
-
-    for(int i = 0; i != 2; ++i) {
-        if(line2[i] != nullptr) {
-            delete line2[i];
-            line2[i] = nullptr;
-        }
-    }
-
-    for(int i = 0; i != 3; ++i) {
-        if(line3[i] != nullptr) {
-            delete line3[i];
-            line3[i] = nullptr;
-        }
-    }
-    
-    for(int i = 0; i != 4; ++i) {
-        if(line4[i] != nullptr) {
-            delete line4[i];
-            line4[i] = nullptr;
-        }
-    }
-    
-    for(int i = 0; i != 5; ++i) {
-        if(line5[i] != nullptr) {
-            delete line5[i];
-            line5[i] = nullptr;
-        }
-    }
-    
-    for(int i = 0; i != 7; ++i) {
-        if(broken[i] != nullptr) {
-            delete broken[i];
-            broken[i] = nullptr;
-        }
-    }
-
+    clearLines();
     delete board;
     delete line1;
     delete line2;
@@ -267,10 +219,11 @@ bool Mosaic::checkForCompleteLine(int row) {
 
 void Mosaic::placeFirstPlayerTile() {
     for(int i=0; i != 7; ++i) {
-        if(broken[0] == nullptr) {
-            broken[0] = new Tile(FIRST_PLAYER);
+        if(broken[i] == nullptr) {
+            broken[i] = new Tile(FIRST_PLAYER);
+            break;
         }
-    }
+    }    
 }
 
 int Mosaic::getBrokenPoints(){
@@ -299,6 +252,9 @@ int Mosaic::getBrokenPoints(){
 void Mosaic::clearBrokenTiles() {
     for(int i=0; i != 7; ++i) {
         if(broken[i] != nullptr) {
+            // if(broken[i]->getColour() != FIRST_PLAYER) {
+            //     discardedTiles.push_back(new Tile(broken[i]->getColour()));
+            // }
             delete broken[i];
             broken[i] = nullptr;
         }
@@ -339,4 +295,40 @@ int Mosaic::countCompleteColours() {
         }
     }
     return complete;
+}
+
+void Mosaic::clearLines() {
+    for(int i = 0; i != MAX_MOSAIC_ROWS; ++i) {
+        for(int j = 0; j != MAX_MOSAIC_COLS; ++j) {
+            delete board[i][j];
+            board[i][j] = nullptr;
+        }
+    }
+    
+    delete line1[0];
+    line1[0] = nullptr;
+
+    for(int i = 0; i != 2; ++i) {
+        delete line2[i];
+        line2[i] = nullptr;
+    }
+
+    for(int i = 0; i != 3; ++i) {
+        delete line3[i];
+        line3[i] = nullptr;
+    }
+    
+    for(int i = 0; i != 4; ++i) {
+        delete line4[i];
+        line4[i] = nullptr;
+    }
+    
+    for(int i = 0; i != 5; ++i) {
+        delete line5[i];
+        line5[i] = nullptr;
+    }
+}
+
+std::vector<TilePtr> Mosaic::getDiscardedTiles() {
+    return discardedTiles;
 }
