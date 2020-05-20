@@ -87,22 +87,62 @@ std::vector<TilePtr> CentreBoard::getBoxLid(){
 }
 
 void CentreBoard::printCentralFactory() {
-    std::cout << "O: ";
-    for(TilePtr tile : centralFactory) {
-        std::cout << tile->getColour() << " ";
-    }    
+    std::cout << "O:";
+
+    int countF = 0;
+    int countR = 0;
+    int countY = 0;
+    int countB = 0;
+    int countL = 0;
+    int countU = 0;
+
+    for (int i = 0; i != centralFactory.size(); ++i) {
+        if (centralFactory.at(i)->getColour() == FIRST_PLAYER) {
+            countF++;
+        } else if(centralFactory.at(i)->getColour() == RED) {
+            countR++;
+        } else if(centralFactory.at(i)->getColour() == YELLOW) {
+            countY++;
+        } else if(centralFactory.at(i)->getColour() == DARK_BLUE) {
+            countB++;
+        } else if(centralFactory.at(i)->getColour() == LIGHT_BLUE) {
+            countL++;
+        } else if(centralFactory.at(i)->getColour() == BLACK) {
+            countU++;
+        }
+    }
+
+    for(int i = 0; i != countF; ++i) {
+        std::cout << " " << FIRST_PLAYER; 
+    }
+
+    for(int i = 0; i != countR; ++i) {
+        std::cout << " " << RED; 
+    }
+
+    for(int i = 0; i != countY; ++i) {
+        std::cout << " " << YELLOW; 
+    }
+
+    for(int i = 0; i != countB; ++i) {
+        std::cout << " " << DARK_BLUE; 
+    }
+
+    for(int i = 0; i != countL; ++i) {
+        std::cout << " " << LIGHT_BLUE; 
+    }
+
+    for(int i = 0; i != countU; ++i) {
+        std::cout << " " << BLACK; 
+    }
+
     std::cout << std::endl;
 }
 
 void CentreBoard::printFactories() {
     for(int i=0; i != MAX_FACTORY; ++i) {
-        std::cout << i+1 << ": ";
-        for(int j=0; j != MAX_TILES_PER_FACTORY; ++j) {
-            if(factories[i][j] != nullptr){
-                std::cout << factories[i][j]->getColour() << " ";
-            }
-        }
-        std::cout << std::endl;
+        std::cout << i+1 << ":";
+        printFactoriesByOrder(i);
     }
 }
     
@@ -209,4 +249,69 @@ void CentreBoard::removeTilesFromCentralFactory(char colour) {
         }
     }
     centralFactory.erase(std::remove(centralFactory.begin(), centralFactory.end(), nullptr), centralFactory.end());
+}
+
+bool CentreBoard::isFactoryEmpty(int factory) {
+    bool empty = false;
+    if(factory == 0) {
+        if(centralFactory.empty() || centralFactory.back()->getColour() == FIRST_PLAYER) {
+            empty = true;
+        } else {
+            empty = false;
+        }
+    } else {
+        if(factories[factory-1][0] == nullptr) {
+            empty = true;
+        } else {
+            empty = false;
+        }
+    }
+
+    return empty;
+}
+
+void CentreBoard::printFactoriesByOrder(int row) {
+    int countR = 0;
+    int countY = 0;
+    int countB = 0;
+    int countL = 0;
+    int countU = 0;
+
+    for (int i = 0; i != MAX_TILES_PER_FACTORY; ++i) {
+        if(factories[row][i] != nullptr) {
+            if (factories[row][i]->getColour() == RED) {
+                countR++;
+            } else if(factories[row][i]->getColour() == YELLOW) {
+                countY++;
+            }  else if(factories[row][i]->getColour() == DARK_BLUE) {
+                countB++;
+            } else if(factories[row][i]->getColour() == LIGHT_BLUE) {
+                countL++;
+            } else if(factories[row][i]->getColour() == BLACK) {
+                countU++;
+            }
+        }
+    }
+    
+    for(int i = 0; i != countR; ++i) {
+        std::cout << " " << RED; 
+    }
+
+    for(int i = 0; i != countY; ++i) {
+        std::cout << " " << YELLOW; 
+    }
+
+    for(int i = 0; i != countB; ++i) {
+        std::cout << " " << DARK_BLUE; 
+    }
+
+    for(int i = 0; i != countL; ++i) {
+        std::cout << " " << LIGHT_BLUE; 
+    }
+
+    for(int i = 0; i != countU; ++i) {
+        std::cout << " " << BLACK; 
+    }
+
+    std::cout << std::endl;
 }

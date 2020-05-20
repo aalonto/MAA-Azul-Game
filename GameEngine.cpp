@@ -1,4 +1,5 @@
 #include "GameEngine.h"
+#include <exception>
 #include <iomanip>
 #include <string>
 #include <limits>
@@ -60,57 +61,70 @@ void GameEngine::playGame() {
     Player* current = player1;
     Player* other = player2;
 
-
-    do {
-        std::cout << "\nTURN FOR PLAYER: " << current->getPlayerName() << std::endl;
-        std::cout << "Factories:" << std::endl;
-        centreBoard->printCentralFactory();
-        centreBoard->printFactories();
-        std::cout << std::endl;
-
+    do { 
         displayPlayerMosaic(current);
 
-    
-        std::cout << "> ";
-
         std::string choice;
-        std::getline(std::cin, choice);
-        std::stringstream playerTurn(choice);
-
         std::string command;
         int factory;
         std::string colour;
         int row;
 
+        std::cout << "> ";
+
+            
+        std::getline(std::cin, choice);
+        std::stringstream playerTurn(choice);
+
         playerTurn >> command >> factory >> colour >> row;
+
 
 //check save
         if(command == "turn") {
             int numTiles = 0;
             char colourToChar = getColourFromInput(colour);
+            int pos = current->getMosaic()->indexToMove(colourToChar, row);
 
-            if (colourToChar != NO_TILE) {
-
-                numTiles = centreBoard->getNumTilesInFactory(colourToChar, factory);
-                if(numTiles != 0) {
-                    int remaining = current->getMosaic()->placeTiles(row, colourToChar, numTiles);
-                    if(remaining != 0) {
-                        for(int i=1; i <= remaining; ++i){
-                            centreBoard->getBoxLid().push_back(new Tile(colourToChar));
-                        }
-                    }
-                    
-                    if(factory !=0){
-                        centreBoard->moveTilesToCentralFactory(colourToChar, factory);
-                    } else {
-                        if(centreBoard->getCentralFactory().front()->getColour() == FIRST_PLAYER) {
-                            centreBoard->removeTilesFromCentralFactory(FIRST_PLAYER);
-                            current->getMosaic()->placeFirstPlayerTile();
-                        }
-
-                        centreBoard->removeTilesFromCentralFactory(colourToChar);
-                    }                    
+            while (centreBoard->isFactoryEmpty(factory) || !current->getMosaic()->isStorageLineAvailable(row, colourToChar) || 
+                current->getMosaic()->getBoard()[row-1][pos]->getColour() != NO_TILE) {
+                
+                if (centreBoard->isFactoryEmpty(factory)) {
+                    std::cout << "\nChosen factory is empty. Choose another one." << std::endl;
+                } else if(!current->getMosaic()->isStorageLineAvailable(row, colourToChar)) {
+                    std::cout << "\nStorage line chosen has a different colour. Choose another one." << std::endl;
+                } else if(current->getMosaic()->getBoard()[row-1][pos]->getColour() != NO_TILE) {
+                    std::cout << "\nColour has been completed for the corresponding row. Choose another one." << std::endl;
                 }
+
+                std::cout << "> ";
+
+                std::getline(std::cin, choice);
+                std::stringstream playerTurn(choice);
+                playerTurn >> command >> factory >> colour >> row;
+                colourToChar = getColourFromInput(colour);
+                pos = current->getMosaic()->indexToMove(colourToChar, row);
+
+            }    
+
+            numTiles = centreBoard->getNumTilesInFactory(colourToChar, factory);
+            if(numTiles != 0) {
+                    
+                int remaining = current->getMosaic()->placeTiles(row, colourToChar, numTiles);
+                if(remaining != 0) {
+                    for(int i=1; i <= remaining; ++i){
+                        centreBoard->getBoxLid().push_back(new Tile(colourToChar));
+                    }
+                }
+                std::cout << "Turn successful" << std::endl;
+                if(factory !=0){
+                    centreBoard->moveTilesToCentralFactory(colourToChar, factory);
+                } else {
+                    if(centreBoard->getCentralFactory().front()->getColour() == FIRST_PLAYER) {
+                        centreBoard->removeTilesFromCentralFactory(FIRST_PLAYER);
+                        current->getMosaic()->placeFirstPlayerTile();
+                    }
+                    centreBoard->removeTilesFromCentralFactory(colourToChar);
+                }                    
             }
 
             Player* tmp = current;
@@ -143,6 +157,12 @@ char GameEngine::getColourFromInput(std::string colour) {
 }
 
 void GameEngine::displayPlayerMosaic(Player* current) {
+    std::cout << "\nTURN FOR PLAYER: " << current->getPlayerName() << std::endl;
+    std::cout << "Factories:" << std::endl;
+    centreBoard->printCentralFactory();
+    centreBoard->printFactories();
+    std::cout << std::endl;
+
     TilePtr* storageLine = nullptr;
     TilePtr* broken = current->getMosaic()->getBroken();
     TilePtr** board = current->getMosaic()->getBoard();
@@ -169,14 +189,7 @@ void GameEngine::displayPlayerMosaic(Player* current) {
         std::cout << std::endl;
     }
 
-    std::cout << "broken: ";
-
-    for(int i=0; i != 7; ++i) {
-        if(broken[i] != nullptr) {
-            std::cout << broken[i]->getColour() << " ";
-        }
-    }
-    std::cout << std::endl;
+    printBrokenTiles(broken);
 }
 
 void GameEngine::checkEndRound() {
@@ -294,5 +307,60 @@ void GameEngine::moveDiscardedTilesToBoxLid() {
             discarded.pop_back();
         }
     }
+}
+
+void GameEngine::printBrokenTiles(TilePtr* broken) {
+    int countF = 0;
+    int countR = 0;
+    int countY = 0;
+    int countB = 0;
+    int countL = 0;
+    int countU = 0;
+
+    std::cout << "broken:";
+
+    for (int i = 0; i != 7; ++i) {
+        if(broken[i] != nullptr) {
+            if (broken[i]->getColour() == FIRST_PLAYER) {
+                countF++;
+            } else if (broken[i]->getColour() == RED) {
+                countR++;
+            } else if(broken[i]->getColour() == YELLOW) {
+                countY++;
+            }  else if(broken[i]->getColour() == DARK_BLUE) {
+                countB++;
+            } else if(broken[i]->getColour() == LIGHT_BLUE) {
+                countL++;
+            } else if(broken[i]->getColour() == BLACK) {
+                countU++;
+            }
+        }
+    }
+
+    for(int i = 0; i != countF; ++i) {
+        std::cout << " " << FIRST_PLAYER; 
+    }
+
+    for(int i = 0; i != countR; ++i) {
+        std::cout << " " << RED; 
+    }
+
+    for(int i = 0; i != countY; ++i) {
+        std::cout << " " << YELLOW; 
+    }
+
+    for(int i = 0; i != countB; ++i) {
+        std::cout << " " << DARK_BLUE; 
+    }
+
+    for(int i = 0; i != countL; ++i) {
+        std::cout << " " << LIGHT_BLUE; 
+    }
+
+    for(int i = 0; i != countU; ++i) {
+        std::cout << " " << BLACK; 
+    }
+
+    std::cout << std::endl;
 }
 

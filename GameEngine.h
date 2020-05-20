@@ -31,6 +31,7 @@ public:
     void endOfGameScoring();
     void displayWinner();
     void moveDiscardedTilesToBoxLid();
+    void printBrokenTiles(TilePtr* broken);
 
 
 private:

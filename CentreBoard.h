@@ -30,6 +30,8 @@ public:
     void populateFactories();
     void moveTilesToCentralFactory(char colour, int row);
     void removeTilesFromCentralFactory(char colour);
+    bool isFactoryEmpty(int factory);
+    void printFactoriesByOrder(int row);
 
 private:
     TilePtr** factories;

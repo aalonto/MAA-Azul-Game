@@ -42,7 +42,7 @@ Mosaic::Mosaic() {
 
 Mosaic::~Mosaic() {
     clearLines();
-    delete board;
+    delete[] board;
     delete line1;
     delete line2;
     delete line3;
@@ -300,13 +300,23 @@ int Mosaic::countCompleteColours() {
 }
 
 void Mosaic::clearLines() {
-    for(int i = 0; i != MAX_MOSAIC_ROWS; ++i) {
-        for(int j = 0; j != MAX_MOSAIC_COLS; ++j) {
-            delete board[i][j];
-        }
+    // for(int i = 0; i != MAX_MOSAIC_ROWS; ++i) {
+    //     for(int j = 0; j != MAX_MOSAIC_COLS; ++j) {
+    //         delete board[i][j];
+    //         board[i][j] = nullptr;
+    //     }
+    // }
+    for(int i = 0; i  != MAX_MOSAIC_ROWS; i++)
+    {
+        for(int j = 0; j != MAX_MOSAIC_COLS; j++) {
+            delete board[i][j];  
+        }  
+        
+        delete [] board[i];         
     }
-    
+
     delete line1[0];
+
     line1[0] = nullptr;
 
     for(int i = 0; i != 2; ++i) {
@@ -332,4 +342,15 @@ void Mosaic::clearLines() {
 
 std::vector<char> Mosaic::getDiscardedTiles() {
     return discardedTiles;
+}
+
+bool Mosaic::isStorageLineAvailable(int row, char colour) {
+    bool valid = false;
+    if(getLine(row)[0]->getColour() == colour || getLine(row)[0]->getColour() == NO_TILE) {
+        valid = true;
+    } else {
+        valid = false;
+    }
+
+    return valid;
 }

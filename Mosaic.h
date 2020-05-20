@@ -33,6 +33,7 @@ public:
     int countCompleteColours();
     void clearLines();
     std::vector<char> getDiscardedTiles();
+    bool isStorageLineAvailable(int row, char colour);
 
 private:
     TilePtr** board;
